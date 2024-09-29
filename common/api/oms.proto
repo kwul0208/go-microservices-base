@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/kwul0208/common/api";
+
+package api;
+
+message Product{
+   string ID = 1;
+}
+
+service ProductService{
+    rpc GetProduct(GetProductRequest) returns (Product);
+}
+
+message GetProductRequest{
+    string productId = 1;
+}
+
+message GetProductResponse{
+    string productId = 1;
+}
