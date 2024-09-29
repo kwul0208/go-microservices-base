@@ -6,16 +6,19 @@ package api;
 
 message Product{
    string ID = 1;
+   string Name = 2;
 }
 
 service ProductService{
-    rpc GetProduct(GetProductRequest) returns (Product);
+    rpc CreateProduct(CreateProductRequest) returns (Product);
 }
 
-message GetProductRequest{
-    string productId = 1;
+message ProductOnly{
+    string ProductId = 1;
+    string ProductName = 2;
 }
 
-message GetProductResponse{
-    string productId = 1;
+message CreateProductRequest{
+    repeated ProductOnly productOnly = 1;
 }
+

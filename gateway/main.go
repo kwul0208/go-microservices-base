@@ -14,7 +14,7 @@ import (
 
 var (
 	httpAddr           = common.EnvString("HTTP_ADDR", ":3000")
-	productServiceAddr = "localhost:3000"
+	productServiceAddr = "localhost:2000"
 )
 
 func main() {

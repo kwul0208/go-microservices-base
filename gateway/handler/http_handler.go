@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	pb "github.com/kwul0208/common/api"
@@ -15,11 +18,25 @@ func NewHandler(client pb.ProductServiceClient) *handler {
 }
 
 func (h *handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST api/product", h.HandleGetProduct)
+	mux.HandleFunc("POST /api/product", h.HandleCreateProduct)
 }
 
-func (h *handler) HandleGetProduct(w http.ResponseWriter, r *http.Request) {
-	h.client.GetProduct(r.Context(), &pb.GetProductRequest{
-		ProductId: r.PathValue("id"),
+func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
+	var product []*pb.ProductOnly
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	err = json.Unmarshal(body, &product)
+	if err != nil {
+		http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("Received product: %+v", product)
+	h.client.CreateProduct(r.Context(), &pb.CreateProductRequest{
+		ProductOnly: product,
 	})
 }
