@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"log"
+	"strconv"
 
 	pb "github.com/kwul0208/common/api"
 	"github.com/kwul0208/product/use_case"
@@ -24,6 +25,7 @@ func NewGRPCHandler(grpcServer *grpc.Server, productUseCase use_case.ProductUseC
 
 func (h *grpcHandler) CreateProduct(ctx context.Context, pr *pb.CreateProductRequest) (*pb.Product, error) {
 
+	log.Print("create")
 	// Convert the request to a product model
 	p := &pb.Product{
 		Name:        pr.ProductOnly.ProductName,
@@ -35,6 +37,24 @@ func (h *grpcHandler) CreateProduct(ctx context.Context, pr *pb.CreateProductReq
 	if err != nil {
 		log.Printf("Error creating product: %v", err)
 		return nil, err
+	}
+
+	return p, nil
+}
+
+func (h *grpcHandler) UpdateProduct(ctx context.Context, pr *pb.UpdateProductRequest) (*pb.Product, error) {
+	log.Print("update")
+	p := &pb.Product{
+		Name:        pr.ProductOnly.ProductName,
+		Description: pr.ProductOnly.ProductDescription,
+	}
+
+	id, _ := strconv.Atoi(pr.ID)
+
+	_, err := h.product_guc.Update(id, p)
+
+	if err != nil {
+		log.Printf("Error update")
 	}
 
 	return p, nil

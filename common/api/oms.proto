@@ -12,14 +12,21 @@ message Product{
 
 service ProductService{
     rpc CreateProduct(CreateProductRequest) returns (Product);
+    rpc UpdateProduct(UpdateProductRequest) returns (Product);
 }
 
 message ProductOnly{
+    string ID = 1;
     string ProductName = 2;
     string ProductDescription = 3;
 }
 
 message CreateProductRequest{
     ProductOnly productOnly = 1;
+}
+
+message UpdateProductRequest{
+    string ID = 1;
+    ProductOnly productOnly = 2;
 }
 

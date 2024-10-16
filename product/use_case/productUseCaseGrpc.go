@@ -8,11 +8,17 @@ import (
 
 type ProductUseCaseGrpc interface {
 	Create(grpcReq *pb.Product) (models.Product, error)
+	Update(Id int, grpcReq *pb.Product) (models.Product, error)
 }
 
 type productUseCaseGrpc struct {
 	productRepository repository.ProductRepository
 }
+
+// // Update implements ProductUseCaseGrpc.
+// func (pu *productUseCaseGrpc) Update(Id int64, grpcReq *pb.Product) (models.Product, error) {
+// 	panic("unimplemented")
+// }
 
 func NewProductUseCaseGrpc(productRepository repository.ProductRepository) *productUseCaseGrpc {
 	return &productUseCaseGrpc{productRepository}
@@ -34,4 +40,16 @@ func (pu *productUseCaseGrpc) Create(grpcReq *pb.Product) (models.Product, error
 
 	// Return the newly created product and no error
 	return newProduct, nil
+}
+
+func (pu *productUseCaseGrpc) Update(Id int, grpcReq *pb.Product) (models.Product, error) {
+	product := models.Product{
+		ProductName: grpcReq.Name,
+		Description: grpcReq.Description,
+	}
+
+	updatedProduct, err := pu.productRepository.Update(Id, product)
+
+	return updatedProduct, err
+
 }
