@@ -1,11 +1,14 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net"
 
 	"github.com/kwul0208/common"
+	"github.com/kwul0208/product/handler"
+	initializers "github.com/kwul0208/product/initializer"
+	"github.com/kwul0208/product/repository"
+	"github.com/kwul0208/product/use_case"
 	"google.golang.org/grpc"
 )
 
@@ -23,11 +26,12 @@ func main() {
 	}
 	defer l.Close()
 
-	store := NewStore()
-	svc := NewService(store)
-	NewGRPCHandler(grpcServer)
+	initializers.LoadEnvVariables()
+	db := initializers.ConnectDatabase()
 
-	svc.CreateProduct(context.Background())
+	store := repository.NewProductRepository(db)
+	svc := use_case.NewProductUseCaseGrpc(store)
+	handler.NewGRPCHandler(grpcServer, svc)
 
 	log.Println("GRPC server started at ", grpcAddr)
 

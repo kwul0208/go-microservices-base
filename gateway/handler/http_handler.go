@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	pb "github.com/kwul0208/common/api"
@@ -22,7 +21,7 @@ func (h *handler) RegisterRoutes(mux *http.ServeMux) {
 }
 
 func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
-	var product []*pb.ProductOnly
+	var product *pb.ProductOnly
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -35,8 +34,19 @@ func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Received product: %+v", product)
+	// log.Printf("Received product: %+v", product)
 	h.client.CreateProduct(r.Context(), &pb.CreateProductRequest{
 		ProductOnly: product,
 	})
+
+	// Berhasil, kirim response JSON dengan status created
+	response := map[string]string{
+		"status":  "success",
+		"message": "Product created successfully",
+	}
+	jsonResponse, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(jsonResponse)
+
 }

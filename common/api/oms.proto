@@ -7,6 +7,7 @@ package api;
 message Product{
    string ID = 1;
    string Name = 2;
+   string Description = 3;
 }
 
 service ProductService{
@@ -14,11 +15,11 @@ service ProductService{
 }
 
 message ProductOnly{
-    string ProductId = 1;
     string ProductName = 2;
+    string ProductDescription = 3;
 }
 
 message CreateProductRequest{
-    repeated ProductOnly productOnly = 1;
+    ProductOnly productOnly = 1;
 }
 
