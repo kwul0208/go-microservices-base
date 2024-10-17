@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"log"
-	"strconv"
 
 	pb "github.com/kwul0208/common/api"
 	"github.com/kwul0208/product/use_case"
@@ -23,9 +22,33 @@ func NewGRPCHandler(grpcServer *grpc.Server, productUseCase use_case.ProductUseC
 	pb.RegisterProductServiceServer(grpcServer, handler)
 }
 
+func (h *grpcHandler) GetProducts(ctx context.Context, pr *pb.Empty) (*pb.Products, error) {
+	log.Print("p")
+	products, err := h.product_guc.Get()
+
+	if err != nil {
+		log.Printf("Error getting product: %v", err)
+		return nil, err
+	}
+
+	var pbProducts []*pb.Product
+	for _, p := range products {
+
+		pbProduct := &pb.Product{
+			ID:          p.Id,
+			Name:        p.ProductName,
+			Description: p.Description,
+		}
+		pbProducts = append(pbProducts, pbProduct)
+	}
+
+	return &pb.Products{
+		Products: pbProducts, // Return the slice of products
+	}, nil
+}
+
 func (h *grpcHandler) CreateProduct(ctx context.Context, pr *pb.CreateProductRequest) (*pb.Product, error) {
 
-	log.Print("create")
 	// Convert the request to a product model
 	p := &pb.Product{
 		Name:        pr.ProductOnly.ProductName,
@@ -49,9 +72,9 @@ func (h *grpcHandler) UpdateProduct(ctx context.Context, pr *pb.UpdateProductReq
 		Description: pr.ProductOnly.ProductDescription,
 	}
 
-	id, _ := strconv.Atoi(pr.ID)
+	// id, _ := strconv.Atoi(pr.ID)
 
-	_, err := h.product_guc.Update(id, p)
+	_, err := h.product_guc.Update(int(pr.ID), p)
 
 	if err != nil {
 		log.Printf("Error update")

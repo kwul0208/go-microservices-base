@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	pb "github.com/kwul0208/common/api"
 )
@@ -17,8 +18,24 @@ func NewHandler(client pb.ProductServiceClient) *handler {
 }
 
 func (h *handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /api/product", h.HandleCreateProduct)
+	mux.HandleFunc("GET /api/products", h.HandleGetProduct)
 	mux.HandleFunc("PUT /api/product", h.HandleUpdateProduct)
+	mux.HandleFunc("POST /api/product", h.HandleCreateProduct)
+}
+
+func (h *handler) HandleGetProduct(w http.ResponseWriter, r *http.Request) {
+
+	product, _ := h.client.GetProducts(r.Context(), &pb.Empty{})
+
+	response := map[string]interface{}{
+		"status":  "success",
+		"message": "getting product successfully",
+		"data":    product,
+	}
+	jsonResponse, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(jsonResponse)
 }
 
 func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -35,12 +52,10 @@ func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Printf("Received product: %+v", product)
 	h.client.CreateProduct(r.Context(), &pb.CreateProductRequest{
 		ProductOnly: product,
 	})
 
-	// Berhasil, kirim response JSON dengan status created
 	response := map[string]string{
 		"status":  "success",
 		"message": "Product created successfully",
@@ -54,7 +69,11 @@ func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handler) HandleUpdateProduct(w http.ResponseWriter, r *http.Request) {
 	var product *pb.ProductOnly
 
-	id := r.URL.Query().Get("id")
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Failed parse int", http.StatusBadRequest)
+		return
+	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

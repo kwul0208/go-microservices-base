@@ -1,8 +1,6 @@
 package use_case
 
 import (
-	"log"
-
 	models "github.com/kwul0208/product/model"
 	"github.com/kwul0208/product/repository"
 	"github.com/kwul0208/product/request"
@@ -35,7 +33,6 @@ func (pu *productUseCase) GetById(Id int) (models.Product, error) {
 }
 
 func (pu *productUseCase) Create(productRequest request.ProductRequest) (models.Product, error) {
-	log.Print("aaa")
 	product := models.Product{
 		Id:          productRequest.Id,
 		ProductName: productRequest.ProductName,

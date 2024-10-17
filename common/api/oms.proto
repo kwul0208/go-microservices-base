@@ -5,18 +5,23 @@ option go_package = "github.com/kwul0208/common/api";
 package api;
 
 message Product{
-   string ID = 1;
+   int64 ID = 1;
    string Name = 2;
    string Description = 3;
 }
 
+message Products{
+    repeated Product products = 1;
+}
+
 service ProductService{
+    rpc GetProducts(Empty) returns (Products); 
     rpc CreateProduct(CreateProductRequest) returns (Product);
     rpc UpdateProduct(UpdateProductRequest) returns (Product);
 }
 
 message ProductOnly{
-    string ID = 1;
+    int64 ID = 1;
     string ProductName = 2;
     string ProductDescription = 3;
 }
@@ -26,7 +31,9 @@ message CreateProductRequest{
 }
 
 message UpdateProductRequest{
-    string ID = 1;
+    int64 ID = 1;
     ProductOnly productOnly = 2;
 }
+
+message Empty{}
 
