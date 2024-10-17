@@ -14,8 +14,13 @@ message Products{
     repeated Product products = 1;
 }
 
+message ProductID{
+    int64 ID = 1;
+}
+
 service ProductService{
     rpc GetProducts(Empty) returns (Products); 
+    rpc GetProductById(ProductID) returns (Product);
     rpc CreateProduct(CreateProductRequest) returns (Product);
     rpc UpdateProduct(UpdateProductRequest) returns (Product);
 }

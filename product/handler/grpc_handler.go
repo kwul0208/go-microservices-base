@@ -47,6 +47,22 @@ func (h *grpcHandler) GetProducts(ctx context.Context, pr *pb.Empty) (*pb.Produc
 	}, nil
 }
 
+func (h *grpcHandler) GetProductById(ctx context.Context, pr *pb.ProductID) (*pb.Product, error) {
+	product, err := h.product_guc.GetById(pr.ID)
+
+	productReturn := &pb.Product{
+		ID:          product.Id,
+		Name:        product.ProductName,
+		Description: product.Description,
+	}
+
+	if err != nil {
+		log.Print("error get by id")
+	}
+
+	return productReturn, err
+}
+
 func (h *grpcHandler) CreateProduct(ctx context.Context, pr *pb.CreateProductRequest) (*pb.Product, error) {
 
 	// Convert the request to a product model

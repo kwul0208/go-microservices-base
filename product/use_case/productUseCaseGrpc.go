@@ -8,6 +8,7 @@ import (
 
 type ProductUseCaseGrpc interface {
 	Get() ([]models.Product, error)
+	GetById(Id int64) (models.Product, error)
 	Create(grpcReq *pb.Product) (models.Product, error)
 	Update(Id int, grpcReq *pb.Product) (models.Product, error)
 }
@@ -26,13 +27,23 @@ func NewProductUseCaseGrpc(productRepository repository.ProductRepository) *prod
 }
 
 func (pu *productUseCaseGrpc) Get() ([]models.Product, error) {
-	product, err := pu.productRepository.GetAll()
+	products, err := pu.productRepository.GetAll()
 
 	if err != nil {
 		return []models.Product{}, err
 	}
 
-	return product, nil
+	return products, nil
+}
+
+func (pu *productUseCaseGrpc) GetById(Id int64) (models.Product, error) {
+	product, err := pu.productRepository.GetById(int(Id))
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return product, err
 }
 
 func (pu *productUseCaseGrpc) Create(grpcReq *pb.Product) (models.Product, error) {

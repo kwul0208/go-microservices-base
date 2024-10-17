@@ -18,12 +18,13 @@ func NewHandler(client pb.ProductServiceClient) *handler {
 }
 
 func (h *handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/products", h.HandleGetProduct)
+	mux.HandleFunc("GET /api/products", h.HandlerGetProduct)
+	mux.HandleFunc("GET /api/product/detail", h.HandlerGetProductById)
 	mux.HandleFunc("PUT /api/product", h.HandleUpdateProduct)
 	mux.HandleFunc("POST /api/product", h.HandleCreateProduct)
 }
 
-func (h *handler) HandleGetProduct(w http.ResponseWriter, r *http.Request) {
+func (h *handler) HandlerGetProduct(w http.ResponseWriter, r *http.Request) {
 
 	product, _ := h.client.GetProducts(r.Context(), &pb.Empty{})
 
@@ -36,6 +37,27 @@ func (h *handler) HandleGetProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResponse)
+}
+
+func (h *handler) HandlerGetProductById(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+
+	if err != nil {
+		http.Error(w, "Failed parse int", http.StatusBadRequest)
+		return
+	}
+	product, _ := h.client.GetProductById(r.Context(), &pb.ProductID{ID: id})
+
+	response := map[string]interface{}{
+		"status":  "success",
+		"message": "getting product successfully",
+		"data":    product,
+	}
+	jsonResponse, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+
 }
 
 func (h *handler) HandleCreateProduct(w http.ResponseWriter, r *http.Request) {
