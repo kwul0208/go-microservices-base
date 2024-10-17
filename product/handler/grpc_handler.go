@@ -98,3 +98,19 @@ func (h *grpcHandler) UpdateProduct(ctx context.Context, pr *pb.UpdateProductReq
 
 	return p, nil
 }
+
+func (h *grpcHandler) DeleteProduct(ctx context.Context, pr *pb.ProductID) (*pb.Product, error) {
+	deletedProduct, err := h.product_guc.Delete(pr.ID)
+
+	if err != nil {
+		log.Print("error deleted product")
+	}
+
+	productReturn := &pb.Product{
+		ID:          deletedProduct.Id,
+		Name:        deletedProduct.ProductName,
+		Description: deletedProduct.Description,
+	}
+
+	return productReturn, err
+}

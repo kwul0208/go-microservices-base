@@ -11,6 +11,7 @@ type ProductUseCaseGrpc interface {
 	GetById(Id int64) (models.Product, error)
 	Create(grpcReq *pb.Product) (models.Product, error)
 	Update(Id int, grpcReq *pb.Product) (models.Product, error)
+	Delete(Id int64) (models.Product, error)
 }
 
 type productUseCaseGrpc struct {
@@ -74,4 +75,14 @@ func (pu *productUseCaseGrpc) Update(Id int, grpcReq *pb.Product) (models.Produc
 
 	return updatedProduct, err
 
+}
+
+func (pu *productUseCaseGrpc) Delete(Id int64) (models.Product, error) {
+	product, err := pu.productRepository.GetById(int(Id))
+	if err != nil {
+		return models.Product{}, err
+	}
+	deletedProduct, _ := pu.productRepository.Delete(product)
+
+	return deletedProduct, nil
 }

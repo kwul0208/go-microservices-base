@@ -22,6 +22,7 @@ func (h *handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/product/detail", h.HandlerGetProductById)
 	mux.HandleFunc("PUT /api/product", h.HandleUpdateProduct)
 	mux.HandleFunc("POST /api/product", h.HandleCreateProduct)
+	mux.HandleFunc("DELETE /api/product/delete", h.HandleDeleteProduct)
 }
 
 func (h *handler) HandlerGetProduct(w http.ResponseWriter, r *http.Request) {
@@ -118,6 +119,26 @@ func (h *handler) HandleUpdateProduct(w http.ResponseWriter, r *http.Request) {
 		"status":  "success",
 		"message": "Product updated successfully",
 	}
+	jsonResponse, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+}
+
+func (h *handler) HandleDeleteProduct(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Failed parse int", http.StatusBadRequest)
+		return
+	}
+	product, _ := h.client.DeleteProduct(r.Context(), &pb.ProductID{ID: id})
+
+	response := map[string]interface{}{
+		"status":  "success",
+		"message": "delete product successfully",
+		"data":    product,
+	}
+
 	jsonResponse, _ := json.Marshal(response)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
