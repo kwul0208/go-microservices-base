@@ -23,6 +23,7 @@ service ProductService{
     rpc GetProductById(ProductID) returns (Product);
     rpc CreateProduct(CreateProductRequest) returns (Product);
     rpc UpdateProduct(UpdateProductRequest) returns (Product);
+    rpc DeleteProduct(ProductID) returns (Product);
 }
 
 message ProductOnly{
