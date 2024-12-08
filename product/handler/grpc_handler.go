@@ -22,7 +22,7 @@ func NewGRPCHandler(grpcServer *grpc.Server, productUseCase use_case.ProductUseC
 	pb.RegisterProductServiceServer(grpcServer, handler)
 }
 
-func (h *grpcHandler) GetProducts(ctx context.Context, pr *pb.Empty) (*pb.Products, error) {
+func (h *grpcHandler) GetProducts(ctx context.Context, pr *pb.ProductEmpty) (*pb.Products, error) {
 	log.Print("p")
 	products, err := h.product_guc.Get()
 
@@ -87,8 +87,6 @@ func (h *grpcHandler) UpdateProduct(ctx context.Context, pr *pb.UpdateProductReq
 		Name:        pr.ProductOnly.ProductName,
 		Description: pr.ProductOnly.ProductDescription,
 	}
-
-	// id, _ := strconv.Atoi(pr.ID)
 
 	_, err := h.product_guc.Update(int(pr.ID), p)
 

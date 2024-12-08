@@ -19,7 +19,7 @@ message ProductID{
 }
 
 service ProductService{
-    rpc GetProducts(Empty) returns (Products); 
+    rpc GetProducts(ProductEmpty) returns (Products); 
     rpc GetProductById(ProductID) returns (Product);
     rpc CreateProduct(CreateProductRequest) returns (Product);
     rpc UpdateProduct(UpdateProductRequest) returns (Product);
@@ -41,5 +41,4 @@ message UpdateProductRequest{
     ProductOnly productOnly = 2;
 }
 
-message Empty{}
-
+message ProductEmpty{}

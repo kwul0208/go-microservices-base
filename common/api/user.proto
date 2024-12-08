@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option go_package = "github.com/kwul2008/common/api";
+
+package api;
+
+message User{
+    int64 ID = 1;
+    string Name = 2;
+    string Email = 3;
+    string password = 4;
+}
+
+message Users{
+    repeated User users = 1;
+}
+
+message UserID{
+    int64 ID = 1;
+}
+
+service UserService{
+    rpc Login(LoginUserRequest) returns (LoginUserResponseWrapper);
+    rpc Create(RegisterUserRequest) returns (User);
+    rpc GetUsers(UserEmpty) returns (Users);
+    rpc GetUserById(UserID) returns (User);
+}
+
+message LoginUserRequest{
+    string Email = 1;
+    string Password = 2;
+}
+
+message RegisterUserRequest{
+    string Name = 1;
+    string Email = 2;
+    string Password = 3;
+}
+
+message LoginUserResponse{
+    string Token = 1;
+    User user = 2;
+
+}
+message LoginUserResponseFailed{
+    string message = 1;
+
+}
+
+message LoginUserResponseWrapper {
+    oneof result {
+        LoginUserResponse success = 1;
+        LoginUserResponseFailed failed = 2;
+    }
+}
+
+message UserEmpty{}

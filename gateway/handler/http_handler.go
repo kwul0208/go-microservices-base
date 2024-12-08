@@ -17,7 +17,7 @@ func NewHandler(client pb.ProductServiceClient) *handler {
 }
 
 func (h *handler) HandlerGetProduct(c *gin.Context) {
-	product, _ := h.client.GetProducts(c.Request.Context(), &pb.Empty{})
+	product, _ := h.client.GetProducts(c.Request.Context(), &pb.ProductEmpty{})
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
