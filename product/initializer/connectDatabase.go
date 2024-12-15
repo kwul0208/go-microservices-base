@@ -1,6 +1,7 @@
 package initializers
 
 import (
+	"log"
 	"os"
 
 	models "github.com/kwul0208/product/model"
@@ -14,7 +15,8 @@ func ConnectDatabase() *gorm.DB {
 	dns := os.Getenv("DB")
 	database, err := gorm.Open(mysql.Open(dns))
 	if err != nil {
-		panic(err)
+		// panic(err)
+		log.Println(err)
 	}
 
 	database.AutoMigrate(&models.Product{})
