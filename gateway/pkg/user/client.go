@@ -3,7 +3,7 @@ package user
 import (
 	"log"
 
-	"github.com/kwul0208/gateway/pkg/user/config"
+	"github.com/kwul0208/gateway/pkg/config"
 	"github.com/kwul0208/gateway/pkg/user/pb"
 	"google.golang.org/grpc"
 )

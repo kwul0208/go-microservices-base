@@ -1,58 +1,50 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 
-	"github.com/kwul0208/common"
-	"github.com/kwul0208/product/handler"
-	initializers "github.com/kwul0208/product/initializer"
-	"github.com/kwul0208/product/repository"
-	"github.com/kwul0208/product/use_case"
+	"github.com/kwul0208/product/pkg/config"
+	"github.com/kwul0208/product/pkg/db"
+	"github.com/kwul0208/product/pkg/handler"
+	"github.com/kwul0208/product/pkg/pb"
+	"github.com/kwul0208/product/pkg/repository"
+	"github.com/kwul0208/product/pkg/use_case"
 	"google.golang.org/grpc"
 )
 
-var (
-	grpcAddr = common.EnvString("GRPC_ADDR", "localhost:2000")
-)
-
 func main() {
+	c, err := config.LoadConfig()
+
+	if err != nil {
+		log.Fatalln("Failed load config", err)
+	}
+
+	h := db.Init(c)
+
+	lis, err := net.Listen("tcp", c.Port)
+
+	if err != nil {
+		log.Fatalln("failed at listening: ", err)
+	}
+
+	fmt.Println("Product SVC on ", c.Port)
+
+	repo := repository.NewProductRepository(h)
+	uc := use_case.NewProductUseCaseGrpc(repo)
+
+	s := handler.Server{
+		H:           h,
+		Product_guc: uc,
+	}
 
 	grpcServer := grpc.NewServer()
 
-	l, err := net.Listen("tcp", grpcAddr)
-	if err != nil {
-		log.Fatalf("failed to listem: %v", err)
-	}
-	defer l.Close()
+	pb.RegisterProductServiceServer(grpcServer, &s)
 
-	initializers.LoadEnvVariables()
-	db := initializers.ConnectDatabase()
-
-	store := repository.NewProductRepository(db)
-	svc := use_case.NewProductUseCaseGrpc(store)
-	handler.NewGRPCHandler(grpcServer, svc)
-
-	log.Println("GRPC server started at ", grpcAddr)
-
-	if err := grpcServer.Serve(l); err != nil {
-		log.Fatal(err.Error())
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalln("Failed to serve : ", err)
 	}
 
-	// r := gin.Default()
-
-	// initializers.LoadEnvVariables()
-	// db := initializers.ConnectDatabase()
-
-	// productRepository := repository.NewProductRepository(db)
-	// productUseCase := use_case.NewProductUseCase(productRepository)
-	// productHandler := handler.NewProductHandler(productUseCase)
-
-	// r.GET("/", productHandler.Index)
-	// r.GET("/:id", productHandler.Show)
-	// r.POST("/", productHandler.Create)
-	// r.PUT("/:id", productHandler.Update)
-	// r.DELETE("/", productHandler.Delete)
-
-	// r.Run()
 }

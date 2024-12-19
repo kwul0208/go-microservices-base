@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kwul0208/gateway/pkg/user/config"
+	"github.com/kwul0208/gateway/pkg/config"
 	"github.com/kwul0208/gateway/pkg/user/routes"
 )
 
