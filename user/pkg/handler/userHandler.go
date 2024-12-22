@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/kwul0208/user/pkg/db"
+	models "github.com/kwul0208/user/pkg/model"
 	"github.com/kwul0208/user/pkg/pb"
 	"github.com/kwul0208/user/pkg/use_case"
 	"github.com/kwul0208/user/pkg/utils"
@@ -52,7 +54,7 @@ func (h *Server) Login(ctx context.Context, lr *pb.LoginRequest) (*pb.LoginRespo
 		Email:    lr.Email,
 		Password: lr.Password,
 	}
-	token, err := h.User_guc.Login(data)
+	user, err := h.User_guc.Login(data)
 	if err != nil {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
@@ -60,8 +62,36 @@ func (h *Server) Login(ctx context.Context, lr *pb.LoginRequest) (*pb.LoginRespo
 		}, nil
 	}
 
+	token, _ := h.Jwt.GenerateToken(user)
+
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
-		Token:  token.Token,
+		Token:  token,
+	}, nil
+}
+
+func (h *Server) Validate(ctx context.Context, vr *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+	fmt.Println("Auth Service: Validate")
+	claims, err := h.Jwt.ValidateToken(vr.Token)
+
+	if err != nil {
+		return &pb.ValidateResponse{
+			Status: http.StatusBadRequest,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	var user models.User
+
+	if result := h.H.DB.Where(&models.User{Email: claims.Email}).First(&user); result.Error != nil {
+		return &pb.ValidateResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	return &pb.ValidateResponse{
+		Status: http.StatusOK,
+		UserId: user.Id,
 	}, nil
 }

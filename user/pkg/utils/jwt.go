@@ -21,7 +21,7 @@ type jwtClaims struct {
 }
 
 // GenerateToken generates a JWT token for the given user and role
-func (w *JWTWrapper) GenerateToken(user models.User, role string) (signedToken string, err error) {
+func (w *JWTWrapper) GenerateToken(user models.User) (signedToken string, err error) {
 	claims := &jwtClaims{
 		Id:    user.Id,
 		Email: user.Email,

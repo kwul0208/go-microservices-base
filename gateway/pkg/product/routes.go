@@ -6,9 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kwul0208/gateway/pkg/config"
 	"github.com/kwul0208/gateway/pkg/product/routes"
+	"github.com/kwul0208/gateway/pkg/user"
 )
 
-func RegisterRoutes(r *gin.Engine, c *config.Config) {
+func RegisterRoutes(r *gin.Engine, c *config.Config, userSvc *user.ServiceClient) {
+	a := user.InitAuthMiddleware(userSvc)
+
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}
@@ -17,6 +20,8 @@ func RegisterRoutes(r *gin.Engine, c *config.Config) {
 
 	route.GET("/:id", svc.FindOne)
 	route.GET("/", svc.FindAll)
+
+	route.Use(a.UserAuth)
 	route.POST("/", svc.CreateProduct)
 }
 

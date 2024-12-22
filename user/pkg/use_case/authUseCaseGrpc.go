@@ -2,10 +2,7 @@ package use_case
 
 import (
 	"errors"
-	"os"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	models "github.com/kwul0208/user/pkg/model"
 	"github.com/kwul0208/user/pkg/pb"
 	"github.com/kwul0208/user/pkg/repository"
@@ -15,7 +12,7 @@ import (
 
 type AuthUseCaseGrpc interface {
 	Register(request *pb.RegisterRequest) (models.User, error)
-	Login(request *pb.LoginRequest) (*pb.LoginResponse, error)
+	Login(request *pb.LoginRequest) (models.User, error)
 }
 
 type authUseCaseGrpc struct {
@@ -41,37 +38,22 @@ func (au *authUseCaseGrpc) Register(grpcReq *pb.RegisterRequest) (models.User, e
 	return newUser, err
 }
 
-func (au *authUseCaseGrpc) Login(grpcReq *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (au *authUseCaseGrpc) Login(grpcReq *pb.LoginRequest) (models.User, error) {
 	user, err := au.authRepository.FindByEmail(grpcReq.Email)
 	if err != nil {
-		return nil, errors.New("email or password are wrong")
+		return models.User{}, errors.New("email or password are wrong")
 	}
 
 	// Jika user tidak ditemukan
 	if user.Id == 0 {
-		return nil, errors.New("email or password are wrong")
+		return models.User{}, errors.New("email or password are wrong")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(grpcReq.Password))
 	if err != nil {
-		return nil, errors.New("email or password are wrong")
-	}
-
-	// Generate JWT token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.Id,
-		"exp": time.Now().Add(time.Hour).Unix(),
-	})
-
-	// Sign dan dapatkan token string
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
-	if err != nil {
-		return nil, errors.New("Failed generate token")
-
+		return models.User{}, errors.New("email or password are wrong")
 	}
 
 	// Return response
-	return &pb.LoginResponse{
-		Token: tokenString,
-	}, err
+	return user, nil
 }

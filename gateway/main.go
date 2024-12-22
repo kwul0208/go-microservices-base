@@ -23,6 +23,6 @@ func main() {
 	userSvc := *user.RegisterRoutes(r, &c)
 	log.Println(userSvc)
 
-	product.RegisterRoutes(r, &c)
+	product.RegisterRoutes(r, &c, &userSvc)
 	r.Run()
 }
