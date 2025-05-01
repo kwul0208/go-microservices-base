@@ -25,14 +25,18 @@ func (c *AuthMiddlewareConfig) UserAuth(ctx *gin.Context) {
 	authorization := ctx.Request.Header.Get("Authorization")
 
 	if authorization == "" {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized, no Authorization header provided",
+		})
 		return
 	}
 
 	token := strings.Split(authorization, "Bearer ")
 
 	if len(token) > 2 {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized, invalid Authorization header",
+		})
 		return
 	}
 
@@ -45,7 +49,9 @@ func (c *AuthMiddlewareConfig) UserAuth(ctx *gin.Context) {
 	log.Printf(res.String())
 
 	if err != nil || res.Status != http.StatusOK {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized, invalid token",
+		})
 		return
 	}
 

@@ -18,10 +18,10 @@ func RegisterRoutes(r *gin.Engine, c *config.Config, userSvc *user.ServiceClient
 
 	route := r.Group("/product")
 
+	route.Use(a.UserAuth)
 	route.GET("/:id", svc.FindOne)
 	route.GET("/", svc.FindAll)
 
-	route.Use(a.UserAuth)
 	route.POST("/", svc.CreateProduct)
 }
 
